@@ -6,7 +6,7 @@ const geist = Geist({ variable: '--font-geist', subsets: ['latin'] });
 const lora = Lora({ variable: '--font-lora', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL('https://lumina-os-erp.dossantosimas.chatgpt.site'),
   title: 'LÚMINA OS · Operación centralizada',
   description: 'Sistema operativo empresarial de LÚMINA Candle Studio.',
   openGraph: {
