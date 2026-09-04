@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+    process.env.NEXT_PUBLIC_APP_URL?.trim() || 'http://localhost:3000',
   ),
   title: 'LÚMINA OS · Operación centralizada',
   description: 'Sistema operativo empresarial de LÚMINA Candle Studio.',
