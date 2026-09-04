@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
-import { Geist, Lora } from 'next/font/google';
 import './globals.css';
 
-const geist = Geist({ variable: '--font-geist', subsets: ['latin'] });
-const lora = Lora({ variable: '--font-lora', subsets: ['latin'] });
-
 export const metadata: Metadata = {
-  metadataBase: new URL('https://lumina-os-erp.dossantosimas.chatgpt.site'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+  ),
   title: 'LÚMINA OS · Operación centralizada',
   description: 'Sistema operativo empresarial de LÚMINA Candle Studio.',
   openGraph: {
@@ -22,6 +20,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="es"><body className={`${geist.variable} ${lora.variable}`}>{children}</body></html>;
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="es">
+      <body>{children}</body>
+    </html>
+  );
 }

@@ -4,3 +4,7 @@ dist/
 .wrangler/
 .dev.vars
 *.log
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local

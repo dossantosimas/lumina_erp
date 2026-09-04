@@ -1,0 +1,2 @@
+ALTER TABLE "inventory_movements" ADD CONSTRAINT "inventory_item_exactly_one" CHECK (num_nonnulls("inventory_movements"."material_id", "inventory_movements"."product_variant_id") = 1);--> statement-breakpoint
+ALTER TABLE "inventory_movements" ADD CONSTRAINT "inventory_quantity_nonzero" CHECK ("inventory_movements"."quantity" <> 0);
