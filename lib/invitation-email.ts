@@ -1,4 +1,5 @@
 import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
+import { join } from 'node:path';
 import { getDb } from '@/db';
 import {
   invitationRoles,
@@ -77,8 +78,12 @@ export async function sendPasswordEmail({
     .where(eq(invitationRoles.invitationId, invitation.id));
   const roleNames = roleRows.map((role) => role.name);
   const expiry = bogotaDate(invitation.expiresAt);
-  const safeUrl = escapeHtml(url);
-  const logoUrl = `${getAppUrl()}/brand/lumina-lockup.png`;
+  const publicUrl = getAppUrl();
+  const resetUrl = new URL(url);
+  const publicOrigin = new URL(publicUrl);
+  resetUrl.protocol = publicOrigin.protocol;
+  resetUrl.host = publicOrigin.host;
+  const safeUrl = escapeHtml(resetUrl.toString());
 
   await db
     .update(invitations)
@@ -93,10 +98,18 @@ export async function sendPasswordEmail({
         `Hola ${name}.`,
         `${invitation.inviterName} te invitó a LÚMINA OS.`,
         `Roles: ${roleNames.join(', ')}.`,
-        `Crea tu contraseña antes del ${expiry}: ${url}`,
+        `Crea tu contraseña antes del ${expiry}: ${resetUrl.toString()}`,
         'LÚMINA nunca te enviará una contraseña por correo.',
       ].join('\n\n'),
-      html: `<!doctype html><html lang="es"><body style="margin:0;background:#f5eddd;color:#493521;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:32px 16px"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fffaf0;border:1px solid #dfcda8;border-radius:20px;overflow:hidden"><tr><td align="center" style="padding:32px 32px 16px"><img src="${escapeHtml(logoUrl)}" width="280" alt="LÚMINA Candle Studio" style="display:block;max-width:100%;height:auto"><h1 style="font-family:Georgia,serif;font-size:28px;margin:24px 0 8px">Bienvenida a LÚMINA OS</h1><p style="line-height:1.6;margin:0">Hola ${escapeHtml(name)}, ${escapeHtml(invitation.inviterName)} te invitó a administrar la operación de LÚMINA.</p></td></tr><tr><td style="padding:16px 32px"><p style="margin:0 0 8px;font-weight:bold">Roles asignados</p><p style="margin:0;color:#735d43">${escapeHtml(roleNames.join(', '))}</p></td></tr><tr><td align="center" style="padding:16px 32px"><a href="${safeUrl}" style="display:inline-block;background:#9b6a28;color:#fffaf0;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:12px">Crear contraseña y entrar</a><p style="font-size:13px;color:#735d43;margin:18px 0 0">El enlace vence el ${escapeHtml(expiry)} (hora de Bogotá).</p></td></tr><tr><td style="padding:16px 32px 32px"><p style="font-size:12px;line-height:1.5;color:#735d43">Si el botón no funciona, copia este enlace:<br><a href="${safeUrl}" style="color:#81551d;word-break:break-all">${safeUrl}</a></p><p style="font-size:12px;color:#735d43">Por seguridad, LÚMINA nunca te enviará una contraseña por correo.</p></td></tr></table><p style="font-size:12px;color:#735d43">LÚMINA Candle Studio</p></td></tr></table></body></html>`,
+      html: `<!doctype html><html lang="es"><body style="margin:0;background:#f5eddd;color:#493521;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:32px 16px"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fffaf0;border:1px solid #dfcda8;border-radius:20px;overflow:hidden"><tr><td align="center" style="padding:32px 32px 16px"><img src="cid:lumina-logo" width="280" alt="LÚMINA Candle Studio" style="display:block;max-width:100%;height:auto"><h1 style="font-family:Georgia,serif;font-size:28px;margin:24px 0 8px">Bienvenida a LÚMINA OS</h1><p style="line-height:1.6;margin:0">Hola ${escapeHtml(name)}, ${escapeHtml(invitation.inviterName)} te invitó a administrar la operación de LÚMINA.</p></td></tr><tr><td style="padding:16px 32px"><p style="margin:0 0 8px;font-weight:bold">Roles asignados</p><p style="margin:0;color:#735d43">${escapeHtml(roleNames.join(', '))}</p></td></tr><tr><td align="center" style="padding:16px 32px"><a href="${safeUrl}" style="display:inline-block;background:#9b6a28;color:#fffaf0;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:12px">Crear contraseña y entrar</a><p style="font-size:13px;color:#735d43;margin:18px 0 0">El enlace vence el ${escapeHtml(expiry)} (hora de Bogotá).</p></td></tr><tr><td style="padding:16px 32px 32px"><p style="font-size:12px;line-height:1.5;color:#735d43">Si el botón no funciona, copia este enlace:<br><a href="${safeUrl}" style="color:#81551d;word-break:break-all">${safeUrl}</a></p><p style="font-size:12px;color:#735d43">Por seguridad, LÚMINA nunca te enviará una contraseña por correo.</p></td></tr></table><p style="font-size:12px;color:#735d43">LÚMINA Candle Studio</p></td></tr></table></body></html>`,
+      attachments: [
+        {
+          filename: 'lumina-candle-studio.png',
+          path: join(process.cwd(), 'public', 'brand', 'lumina-lockup.png'),
+          cid: 'lumina-logo',
+          contentDisposition: 'inline',
+        },
+      ],
     });
     await db
       .update(invitations)

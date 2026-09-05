@@ -370,7 +370,13 @@ export function UsersWorkspace({
                       </tr>
                     </thead>
                     <tbody>
-                      {snapshot.members.map((member) => (
+                      {snapshot.members.map((member) => {
+                        const pendingInvitation = snapshot.invitations.find(
+                          (invitation) =>
+                            invitation.email.toLowerCase() ===
+                            member.email.toLowerCase(),
+                        );
+                        return (
                         <tr key={member.id} className="border-b last:border-0">
                           <td className="p-4 font-semibold">{member.name}</td>
                           <td className="p-4">
@@ -392,12 +398,28 @@ export function UsersWorkspace({
                               {member.active
                                 ? member.emailVerified
                                   ? 'Verificado'
-                                  : 'Pendiente'
+                                  : pendingInvitation?.emailStatus === 'FAILED'
+                                    ? 'Pendiente · Falló el correo'
+                                    : 'Invitación pendiente'
                                 : 'Inactivo'}
                             </span>
                           </td>
                           <td className="p-4">
                             <div className="flex justify-end gap-2">
+                              {pendingInvitation && (
+                                <button
+                                  type="button"
+                                  disabled={pending}
+                                  onClick={() =>
+                                    resendInvitation(pendingInvitation)
+                                  }
+                                  aria-label={`Reenviar invitación a ${member.name}`}
+                                  title={`Reenviar invitación a ${member.email}`}
+                                  className="grid size-9 place-items-center rounded-lg border border-primary/30 bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  <Send className="size-4" />
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 onClick={() => setEditingUserId(member.id)}
@@ -439,7 +461,8 @@ export function UsersWorkspace({
                             </div>
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

@@ -5,6 +5,12 @@ export type EmailMessage = {
   subject: string;
   html: string;
   text: string;
+  attachments?: Array<{
+    filename: string;
+    path: string;
+    cid: string;
+    contentDisposition?: 'inline' | 'attachment';
+  }>;
 };
 
 export type EmailDelivery = {

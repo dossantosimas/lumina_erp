@@ -12,6 +12,7 @@ import {
   userRoles,
 } from '@/db/schema';
 import { auth } from '@/lib/auth';
+import { getAppUrl } from '@/lib/app-url';
 import { accessErrorResponse, authorize } from '@/lib/authorization';
 import { INVITATION_TTL_MS } from '@/modules/sistema/domain/invitation-rules';
 
@@ -34,7 +35,7 @@ async function sendPasswordSetup(email: string) {
     await auth.api.requestPasswordReset({
       body: {
         email,
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/reset-password`,
+        redirectTo: `${getAppUrl()}/reset-password`,
       },
     });
     return 'SENT' as const;

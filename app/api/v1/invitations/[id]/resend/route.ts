@@ -2,6 +2,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { auditLogs, invitations } from '@/db/schema';
 import { auth } from '@/lib/auth';
+import { getAppUrl } from '@/lib/app-url';
 import { accessErrorResponse, authorize } from '@/lib/authorization';
 import { INVITATION_TTL_MS } from '@/modules/sistema/domain/invitation-rules';
 
@@ -34,7 +35,7 @@ export async function POST(
       await auth.api.requestPasswordReset({
         body: {
           email: invitation.email,
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/reset-password`,
+          redirectTo: `${getAppUrl()}/reset-password`,
         },
       });
     } catch (error) {
