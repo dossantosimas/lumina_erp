@@ -43,7 +43,7 @@ export function LoginForm() {
           type="email"
           required
           autoComplete="email"
-          className="mt-2 h-11 w-full rounded-xl border bg-white px-3 outline-none focus:ring-2 focus:ring-primary/20"
+          className="mt-2 h-11 w-full rounded-xl border bg-background px-3 outline-none focus:ring-2 focus:ring-primary/20"
         />
       </label>
       <label className="block text-sm font-medium">
@@ -54,7 +54,7 @@ export function LoginForm() {
           required
           minLength={12}
           autoComplete="current-password"
-          className="mt-2 h-11 w-full rounded-xl border bg-white px-3 outline-none focus:ring-2 focus:ring-primary/20"
+          className="mt-2 h-11 w-full rounded-xl border bg-background px-3 outline-none focus:ring-2 focus:ring-primary/20"
         />
       </label>
       {error && (
@@ -67,7 +67,7 @@ export function LoginForm() {
       )}
       <button
         disabled={pending}
-        className="h-11 w-full rounded-xl bg-[#1f4b3c] text-sm font-semibold text-white disabled:opacity-60"
+        className="h-11 w-full rounded-xl bg-primary text-sm font-semibold text-white disabled:opacity-60"
       >
         {pending ? 'Ingresando…' : 'Ingresar'}
       </button>

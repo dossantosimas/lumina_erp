@@ -6,7 +6,7 @@ ERP interno de LÚMINA Candle Studio, construido como monolito modular con Next.
 
 - Blueprint autoritativo y TOP 20: `docs/blueprint/LUMINA_OS_ERP_MASTER_BLUEPRINT.md`.
 - Plantillas de importación verificadas: `outputs/01a064b1-64b4-7820-91dc-69c34005c144/`.
-- Modelo PostgreSQL de 37 tablas y migraciones Drizzle generado.
+- Modelo PostgreSQL de 41 tablas y migraciones Drizzle generado.
 - Better Auth con correo/contraseña, verificación, recuperación, rate limiting persistente y registro público deshabilitado.
 - RBAC multirol aplicado en servidor y dashboard, con gestión administrativa de invitaciones y auditoría.
 - Módulos operativos de catálogo/BOM, inventario, compras, producción, ventas y finanzas.
@@ -44,4 +44,4 @@ En la aplicación, `/carga-inicial` permite descargar y validar la plantilla y `
 
 ## Despliegue
 
-Vercel necesita, por entorno, `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, `EMAIL_FROM` y `RESEND_API_KEY`. El sitio anterior de Sites/D1 no se modifica y queda como referencia visual hasta el corte productivo.
+Vercel necesita, por entorno, `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_APP_PASSWORD` y `EMAIL_FROM`. Gmail requiere verificación en dos pasos y una contraseña de aplicación; nunca debe usarse la contraseña normal de la cuenta. El sitio anterior de Sites/D1 no se modifica y queda como referencia visual hasta el corte productivo.

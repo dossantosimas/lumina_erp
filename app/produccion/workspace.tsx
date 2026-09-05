@@ -1,10 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
-  ArrowLeft,
   Check,
   Factory,
   PackageCheck,
@@ -101,17 +99,11 @@ export function ProductionWorkspace({
   }
 
   return (
-    <main className="min-h-screen bg-[var(--canvas)] p-4 text-foreground sm:p-8 lg:p-10">
+    <div className="min-h-screen bg-[var(--canvas)] p-4 text-foreground sm:p-8 lg:p-10">
       <div className="mx-auto max-w-[1450px]">
         <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <Link
-              href="/"
-              className="mb-5 inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="size-4" /> Volver al resumen
-            </Link>
-            <p className="text-xs font-bold uppercase tracking-[.18em] text-[#9a775a]">
+            <p className="text-xs font-bold uppercase tracking-[.18em] text-brand">
               Ciclo operativo
             </p>
             <h1 className="mt-2 font-heading text-4xl font-semibold">
@@ -122,7 +114,7 @@ export function ProductionWorkspace({
             </p>
           </div>
           <span className="inline-flex w-fit items-center gap-2 rounded-full border bg-background px-3 py-2 text-xs">
-            <Sparkles className="size-4 text-[#9a775a]" />{' '}
+            <Sparkles className="size-4 text-brand" />{' '}
             {snapshot.eligibleProducts.length} productos fabricables ·{' '}
             {snapshot.orders.length} órdenes
           </span>
@@ -137,7 +129,7 @@ export function ProductionWorkspace({
         <div className="mt-6 grid gap-5 xl:grid-cols-[.68fr_1.32fr]">
           <section className="panel p-5">
             <div className="mb-5 flex items-center gap-3">
-              <span className="grid size-10 place-items-center rounded-xl bg-[#eee6da] text-[#806646]">
+              <span className="grid size-10 place-items-center rounded-xl bg-accent text-accent-foreground">
                 <Factory className="size-5" />
               </span>
               <div>
@@ -380,7 +372,7 @@ export function ProductionWorkspace({
           </form>
         </RecordModal>
       )}
-    </main>
+    </div>
   );
 }
 
@@ -470,7 +462,7 @@ function CompleteForm({
         </label>
         <button
           disabled={pending}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#1f4b3c] px-3 py-2 text-xs font-semibold text-white"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white"
         >
           <Check className="size-4" />
           Confirmar producción

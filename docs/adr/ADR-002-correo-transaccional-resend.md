@@ -1,21 +1,23 @@
-# ADR-002 — Correo transaccional con Resend
+# ADR-002 — Correo transaccional con Gmail SMTP
 
 ## Estado
 
-Aprobado por LÚMINA el 2 de septiembre de 2026.
+Aprobado por LÚMINA y actualizado el 5 de septiembre de 2026.
 
 ## Decisión
 
-Resend será el proveedor de correo para invitaciones, verificación y recuperación de contraseña de Better Auth. La integración usa HTTPS desde el servidor y nunca expone `RESEND_API_KEY` al navegador.
+Gmail SMTP será el proveedor inicial para invitaciones, verificación y recuperación de contraseña de Better Auth. Se autentica exclusivamente con una contraseña de aplicación y nunca expone credenciales al navegador.
 
 ## Configuración
 
-- `EMAIL_FROM`: remitente de un dominio verificado.
-- `RESEND_API_KEY`: secreto distinto para preview y producción.
-- En desarrollo sin credenciales, el adaptador registra únicamente metadatos y omite el contenido del correo.
+- `SMTP_HOST`, `SMTP_PORT` y `SMTP_SECURE`: transporte TLS de Gmail.
+- `SMTP_USER`: cuenta remitente de LÚMINA.
+- `SMTP_APP_PASSWORD`: secreto distinto de la contraseña personal.
+- `EMAIL_FROM`: nombre y dirección visibles para el destinatario.
+- En cualquier entorno sin credenciales, el envío falla de forma explícita.
 
 ## Consecuencias
 
-- El dominio remitente debe verificarse antes de las pruebas de aceptación.
+- Gmail debe tener verificación en dos pasos y contraseña de aplicación.
 - Un envío fallido impide considerar entregada una invitación.
-- La auditoría registra la creación de la invitación, pero nunca tokens ni contraseñas.
+- La invitación conserva estado, fecha de intento e identificador SMTP, pero nunca tokens ni contraseñas.

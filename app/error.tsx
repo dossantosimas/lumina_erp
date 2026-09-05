@@ -12,8 +12,8 @@ export default function ErrorPage({
   return (
     <main className="grid min-h-screen place-items-center bg-[var(--canvas)] p-5">
       <section className="panel w-full max-w-xl p-8 text-center">
-        <CircleAlert className="mx-auto size-9 text-[#9a775a]" />
-        <p className="mt-5 text-xs font-bold uppercase tracking-[.18em] text-[#9a775a]">
+        <CircleAlert className="mx-auto size-9 text-brand" />
+        <p className="mt-5 text-xs font-bold uppercase tracking-[.18em] text-brand">
           No fue posible cargar el módulo
         </p>
         <h1 className="mt-2 font-heading text-3xl font-semibold">

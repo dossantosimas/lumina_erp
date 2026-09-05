@@ -1,5 +1,5 @@
 import 'server-only';
-import { asc, desc, eq, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull } from 'drizzle-orm';
 import { getDb } from '@/db';
 import {
   auditLogs,
@@ -37,11 +37,17 @@ export async function getUsersSnapshot() {
         .select({
           id: invitations.id,
           email: invitations.email,
+          emailStatus: invitations.emailStatus,
           expiresAt: invitations.expiresAt,
+          lastAttemptAt: invitations.lastAttemptAt,
+          sentAt: invitations.sentAt,
+          lastError: invitations.lastError,
           createdAt: invitations.createdAt,
         })
         .from(invitations)
-        .where(isNull(invitations.acceptedAt))
+        .where(
+          and(isNull(invitations.acceptedAt), isNull(invitations.cancelledAt)),
+        )
         .orderBy(desc(invitations.createdAt)),
       db
         .select({

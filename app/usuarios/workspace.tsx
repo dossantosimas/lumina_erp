@@ -1,14 +1,13 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  ArrowLeft,
   History,
   MailPlus,
   Pencil,
   RotateCcw,
+  Send,
   Sparkles,
   Trash2,
   Users,
@@ -37,7 +36,11 @@ type Snapshot = {
   invitations: {
     id: string;
     email: string;
+    emailStatus: 'PENDING' | 'SENT' | 'FAILED' | 'ACCEPTED';
     expiresAt: Date;
+    lastAttemptAt: Date | null;
+    sentAt: Date | null;
+    lastError: string | null;
     createdAt: Date;
     roles: Role[];
   }[];
@@ -204,7 +207,55 @@ export function UsersWorkspace({
             ? 'El correo ya pertenece a un usuario.'
             : (result.error ?? 'No fue posible enviar la invitación.'),
         );
-      setMessage(`Invitación enviada a ${result.email}.`);
+      setMessage(
+        result.emailStatus === 'SENT'
+          ? `Invitación enviada a ${result.email}.`
+          : `La cuenta de ${result.email} fue creada, pero Gmail no pudo enviar el correo. Puedes reenviarlo desde invitaciones pendientes.`,
+      );
+      router.refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Error inesperado.');
+    } finally {
+      setPending(false);
+    }
+  }
+  async function resendInvitation(invitation: Snapshot['invitations'][number]) {
+    setPending(true);
+    setError('');
+    setMessage('');
+    try {
+      const response = await fetch(
+        `/api/v1/invitations/${invitation.id}/resend`,
+        { method: 'POST' },
+      );
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.error ?? 'No fue posible reenviar.');
+      setMessage(
+        result.emailStatus === 'SENT'
+          ? `Invitación reenviada a ${invitation.email}.`
+          : `Gmail no pudo enviar la invitación a ${invitation.email}. Revisa la configuración SMTP.`,
+      );
+      router.refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Error inesperado.');
+    } finally {
+      setPending(false);
+    }
+  }
+  async function cancelInvitation(invitation: Snapshot['invitations'][number]) {
+    if (!window.confirm(`¿Cancelar la invitación de ${invitation.email}?`))
+      return;
+    setPending(true);
+    setError('');
+    try {
+      const response = await fetch(`/api/v1/invitations/${invitation.id}`, {
+        method: 'DELETE',
+      });
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.error ?? 'No fue posible cancelar.');
+      setMessage(`Invitación de ${invitation.email} cancelada.`);
       router.refresh();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Error inesperado.');
@@ -213,24 +264,18 @@ export function UsersWorkspace({
     }
   }
   return (
-    <main className="min-h-screen bg-[var(--canvas)] p-4 text-foreground sm:p-8 lg:p-10">
+    <div className="min-h-screen bg-[var(--canvas)] p-4 text-foreground sm:p-8 lg:p-10">
       <div className="mx-auto max-w-[1450px]">
         <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <Link
-              href="/"
-              className="mb-5 inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="size-4" /> Volver al resumen
-            </Link>
-            <p className="text-xs font-bold uppercase tracking-[.18em] text-[#9a775a]">
+            <p className="text-xs font-bold uppercase tracking-[.18em] text-brand">
               Acceso y trazabilidad
             </p>
             <h1 className="mt-2 font-heading text-4xl font-semibold">
               Equipo y auditoría
             </h1>
           </div>
-          <Sparkles className="size-7 text-[#9a775a]" />
+          <Sparkles className="size-7 text-brand" />
         </header>
         <div className="mt-7 flex gap-2">
           {(['Usuarios', 'Auditoría'] as const).map((item) => (
@@ -256,7 +301,7 @@ export function UsersWorkspace({
         {tab === 'Usuarios' ? (
           <div className="mt-5 grid gap-5 xl:grid-cols-[390px_1fr]">
             <form action={invite} className="panel h-fit p-6">
-              <MailPlus className="size-6 text-[#9a775a]" />
+              <MailPlus className="size-6 text-brand" />
               <h2 className="mt-4 font-heading text-xl font-semibold">
                 Invitar integrante
               </h2>
@@ -311,7 +356,7 @@ export function UsersWorkspace({
                       Usuarios ({snapshot.members.length})
                     </h2>
                   </div>
-                  <Users className="size-5 text-[#9a775a]" />
+                  <Users className="size-5 text-brand" />
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[900px] text-left text-sm">
@@ -386,7 +431,7 @@ export function UsersWorkspace({
                                   onClick={() => restoreAccess(member)}
                                   aria-label={`Restaurar acceso de ${member.name}`}
                                   title={`Restaurar acceso de ${member.name}`}
-                                  className="grid size-9 place-items-center rounded-lg border bg-background text-[#27684f] transition hover:bg-[#e4f0e9]"
+                                  className="grid size-9 place-items-center rounded-lg border bg-background text-success transition hover:bg-success/10"
                                 >
                                   <RotateCcw className="size-4" />
                                 </button>
@@ -502,24 +547,72 @@ export function UsersWorkspace({
                     Invitaciones pendientes
                   </h2>
                   <div className="mt-4 space-y-3">
-                    {snapshot.invitations.map((invitation) => (
-                      <div
-                        key={invitation.id}
-                        className="flex flex-col justify-between gap-2 rounded-xl border p-4 sm:flex-row"
-                      >
-                        <div>
-                          <b className="text-sm">{invitation.email}</b>
-                          <p className="text-xs text-muted-foreground">
-                            {invitation.roles
-                              .map((role) => role.name)
-                              .join(', ')}
-                          </p>
+                    {snapshot.invitations.map((invitation) => {
+                      const statusLabel = {
+                        PENDING: 'Preparando',
+                        SENT: 'Enviada',
+                        FAILED: 'Error de envío',
+                        ACCEPTED: 'Aceptada',
+                      }[invitation.emailStatus];
+                      const statusClass =
+                        invitation.emailStatus === 'SENT'
+                          ? 'status status-green'
+                          : invitation.emailStatus === 'FAILED'
+                            ? 'status bg-red-50 text-red-700'
+                            : 'status status-amber';
+                      return (
+                        <div
+                          key={invitation.id}
+                          className="flex flex-col justify-between gap-4 rounded-xl border p-4 lg:flex-row lg:items-center"
+                        >
+                          <div className="min-w-0">
+                            <b className="text-sm">{invitation.email}</b>
+                            <p className="text-xs text-muted-foreground">
+                              {invitation.roles
+                                .map((role) => role.name)
+                                .join(', ')}
+                            </p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Vence {bogotaDate(invitation.expiresAt)}
+                              {invitation.sentAt
+                                ? ` · Último envío ${bogotaDate(invitation.sentAt)}`
+                                : ''}
+                            </p>
+                            {invitation.lastError && (
+                              <p className="mt-2 text-xs text-red-700">
+                                Gmail reportó un error. Revisa SMTP y vuelve a
+                                intentar.
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <span className={statusClass}>
+                              <span /> {statusLabel}
+                            </span>
+                            <button
+                              type="button"
+                              disabled={pending}
+                              onClick={() => resendInvitation(invitation)}
+                              aria-label={`Reenviar invitación a ${invitation.email}`}
+                              title="Reenviar invitación"
+                              className="grid size-9 place-items-center rounded-lg border bg-background text-brand hover:bg-accent disabled:opacity-50"
+                            >
+                              <Send className="size-4" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={pending}
+                              onClick={() => cancelInvitation(invitation)}
+                              aria-label={`Cancelar invitación de ${invitation.email}`}
+                              title="Cancelar invitación"
+                              className="grid size-9 place-items-center rounded-lg border border-red-200 bg-background text-red-700 hover:bg-red-50 disabled:opacity-50"
+                            >
+                              <Trash2 className="size-4" />
+                            </button>
+                          </div>
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          Vence {bogotaDate(invitation.expiresAt)}
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -532,7 +625,7 @@ export function UsersWorkspace({
                 <p className="panel-kicker">Últimos 100 eventos</p>
                 <h2 className="panel-title">Bitácora inmutable</h2>
               </div>
-              <History className="size-5 text-[#9a775a]" />
+              <History className="size-5 text-brand" />
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[850px] text-left text-sm">
@@ -574,6 +667,6 @@ export function UsersWorkspace({
           </section>
         )}
       </div>
-    </main>
+    </div>
   );
 }

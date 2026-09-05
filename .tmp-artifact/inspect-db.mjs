@@ -18,6 +18,11 @@ try {
     where schemaname = 'public'
     order by tablename
   `);
+  const migrationCount = await pool.query(`
+    select count(*)::int as count
+    from drizzle.__drizzle_migrations
+  `).catch(() => ({ rows: [{ count: 0 }] }));
+  console.log(`drizzle_migrations\t${migrationCount.rows[0].count}`);
   for (const { tablename } of tables.rows) {
     const quoted = '"' + tablename.replaceAll('"', '""') + '"';
     const count = await pool.query(`select count(*)::int as count from ${quoted}`);

@@ -1,10 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft,
   Beaker,
   Boxes,
   Check,
@@ -143,18 +141,11 @@ export function CatalogWorkspace({
   }
 
   return (
-    <main className="min-h-screen bg-[var(--canvas)] p-4 text-foreground sm:p-8 lg:p-10">
+    <div className="min-h-screen bg-[var(--canvas)] p-4 text-foreground sm:p-8 lg:p-10">
       <div className="mx-auto max-w-[1450px]">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <Link
-              href="/"
-              className="mb-5 inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="size-4" />
-              Volver al resumen
-            </Link>
-            <p className="text-xs font-bold uppercase tracking-[.18em] text-[#9a775a]">
+            <p className="text-xs font-bold uppercase tracking-[.18em] text-brand">
               Fundamentos operativos
             </p>
             <h1 className="mt-2 font-heading text-4xl font-semibold">
@@ -165,7 +156,7 @@ export function CatalogWorkspace({
             </p>
           </div>
           <span className="inline-flex w-fit items-center gap-2 rounded-full border bg-background px-3 py-2 text-xs">
-            <Sparkles className="size-4 text-[#9a775a]" />
+            <Sparkles className="size-4 text-brand" />
             {materials.length} materiales · {products.length} productos ·{' '}
             {boms.length} versiones
           </span>
@@ -574,7 +565,7 @@ export function CatalogWorkspace({
                       </div>
                     ))}
                   </div>
-                  <div className="col-span-full rounded-xl bg-[#f4f0e9] p-3 text-xs">
+                  <div className="col-span-full rounded-xl bg-muted p-3 text-xs">
                     <span className="text-muted-foreground">
                       Costo estimado antes de rendimiento:
                     </span>{' '}
@@ -630,7 +621,7 @@ export function CatalogWorkspace({
                                 'BOM activada; el producto ya puede pasar a producción.',
                               )
                             }
-                            className="inline-flex items-center gap-2 rounded-lg bg-[#1f4b3c] px-3 py-2 text-xs font-semibold text-white"
+                            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white"
                           >
                             <Check className="size-4" /> Activar versión
                           </button>
@@ -1034,7 +1025,7 @@ export function CatalogWorkspace({
           </form>
         </RecordModal>
       )}
-    </main>
+    </div>
   );
 }
 
@@ -1050,7 +1041,7 @@ function Panel({
   return (
     <section className="panel p-5">
       <div className="mb-5 flex items-center gap-3">
-        <span className="grid size-10 place-items-center rounded-xl bg-[#eee6da] text-[#806646]">
+        <span className="grid size-10 place-items-center rounded-xl bg-accent text-accent-foreground">
           <Icon className="size-5" />
         </span>
         <h2 className="font-heading text-xl font-semibold">{title}</h2>

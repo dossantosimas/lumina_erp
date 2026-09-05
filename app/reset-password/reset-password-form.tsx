@@ -42,7 +42,7 @@ export function ResetPasswordForm() {
       )}
       <button
         disabled={pending}
-        className="h-11 w-full rounded-xl bg-[#1f4b3c] text-sm font-semibold text-white"
+        className="h-11 w-full rounded-xl bg-primary text-sm font-semibold text-white"
       >
         {pending ? 'Guardando…' : 'Definir contraseña'}
       </button>

@@ -1,8 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowLeft, Download, FileCheck2, Upload } from 'lucide-react';
+import { Download, FileCheck2, Upload } from 'lucide-react';
 
 type Result = {
   valid: boolean;
@@ -34,15 +33,9 @@ export function InitialLoadWorkspace() {
     }
   }
   return (
-    <main className="min-h-screen bg-[var(--canvas)] p-4 sm:p-8 lg:p-10">
+    <div className="min-h-screen bg-[var(--canvas)] p-4 sm:p-8 lg:p-10">
       <div className="mx-auto max-w-6xl">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground"
-        >
-          <ArrowLeft className="size-4" /> Volver al resumen
-        </Link>
-        <p className="mt-7 text-xs font-bold uppercase tracking-[.18em] text-[#9a775a]">
+        <p className="mt-7 text-xs font-bold uppercase tracking-[.18em] text-brand">
           Puesta en marcha
         </p>
         <h1 className="mt-2 font-heading text-4xl font-semibold">
@@ -54,7 +47,7 @@ export function InitialLoadWorkspace() {
         </p>
         <div className="mt-7 grid gap-5 lg:grid-cols-[390px_1fr]">
           <section className="panel h-fit p-6">
-            <Upload className="size-6 text-[#9a775a]" />
+            <Upload className="size-6 text-brand" />
             <h2 className="mt-4 font-heading text-xl font-semibold">
               Validar plantilla
             </h2>
@@ -90,7 +83,7 @@ export function InitialLoadWorkspace() {
             {!result ? (
               <div className="panel grid min-h-72 place-items-center p-8 text-center">
                 <div>
-                  <FileCheck2 className="mx-auto size-8 text-[#9a775a]" />
+                  <FileCheck2 className="mx-auto size-8 text-brand" />
                   <h2 className="mt-4 font-heading text-xl font-semibold">
                     Sin archivo validado
                   </h2>
@@ -102,7 +95,7 @@ export function InitialLoadWorkspace() {
             ) : (
               <>
                 <div
-                  className={`rounded-2xl border p-5 ${result.valid ? 'bg-[#e4f0e9] text-[#27684f]' : 'bg-[#f7ead8] text-[#8d5d27]'}`}
+                  className={`rounded-2xl border p-5 ${result.valid ? 'bg-success/10 text-success' : 'bg-[#f7ead8] text-[#8d5d27]'}`}
                 >
                   <b>
                     {result.valid
@@ -170,6 +163,6 @@ export function InitialLoadWorkspace() {
           </section>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -14,20 +14,14 @@ export default async function Home() {
   if (!current) redirect('/login');
   const access = await getDashboardAccess(current.user.id);
   const snapshot = await getDashboardSnapshot(access);
-  return (
-    <Dashboard
-      user={{ name: current.user.name, email: current.user.email }}
-      snapshot={snapshot}
-      access={access}
-    />
-  );
+  return <Dashboard snapshot={snapshot} access={access} />;
 }
 
 function SetupRequired() {
   return (
     <main className="grid min-h-screen place-items-center bg-[var(--canvas)] p-5">
       <section className="w-full max-w-2xl rounded-3xl border bg-background p-8 shadow-xl">
-        <p className="text-xs font-bold uppercase tracking-[.2em] text-[#9a775a]">
+        <p className="text-xs font-bold uppercase tracking-[.2em] text-brand">
           LÚMINA OS · Configuración segura
         </p>
         <h1 className="mt-3 font-heading text-4xl font-semibold">
@@ -38,7 +32,7 @@ function SetupRequired() {
           de entorno, ejecuta la migración PostgreSQL y crea el primer
           administrador para comenzar la carga inicial.
         </p>
-        <code className="mt-6 block rounded-xl bg-[#183b31] p-4 text-sm text-white">
+        <code className="mt-6 block rounded-xl bg-foreground p-4 text-sm text-white">
           DATABASE_URL · BETTER_AUTH_SECRET · BETTER_AUTH_URL
         </code>
       </section>

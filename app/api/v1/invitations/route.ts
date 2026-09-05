@@ -13,6 +13,7 @@ import {
 } from '@/db/schema';
 import { auth } from '@/lib/auth';
 import { accessErrorResponse, authorize } from '@/lib/authorization';
+import { INVITATION_TTL_MS } from '@/modules/sistema/domain/invitation-rules';
 
 const roleCode = z.enum([
   'ADMIN',
@@ -29,12 +30,18 @@ const requestSchema = z.object({
 });
 
 async function sendPasswordSetup(email: string) {
-  await auth.api.requestPasswordReset({
-    body: {
-      email,
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/reset-password`,
-    },
-  });
+  try {
+    await auth.api.requestPasswordReset({
+      body: {
+        email,
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/reset-password`,
+      },
+    });
+    return 'SENT' as const;
+  } catch (error) {
+    console.error('No fue posible entregar la invitación por SMTP.', error);
+    return 'FAILED' as const;
+  }
 }
 
 export async function POST(request: Request) {
@@ -67,15 +74,24 @@ export async function POST(request: Request) {
           { error: 'EMAIL_ALREADY_REGISTERED' },
           { status: 409 },
         );
-      await sendPasswordSetup(email);
+      await db
+        .update(invitations)
+        .set({ expiresAt: new Date(Date.now() + INVITATION_TTL_MS) })
+        .where(eq(invitations.id, pendingInvitation.id));
+      const emailStatus = await sendPasswordSetup(email);
       await db.insert(auditLogs).values({
         actorUserId: actor.id,
         operation: 'INVITATION_RESENT',
         entityType: 'invitation',
         entityId: pendingInvitation.id,
-        afterJson: { email },
+        afterJson: { email, emailStatus },
       });
-      return Response.json({ id: pendingInvitation.id, email, resent: true });
+      return Response.json({
+        id: pendingInvitation.id,
+        email,
+        resent: true,
+        emailStatus,
+      });
     }
     const uniqueRoles = [...new Set(parsed.data.roles)];
     const selectedRoles = await db
@@ -101,7 +117,7 @@ export async function POST(request: Request) {
         email,
         tokenHash: createHash('sha256').update(randomBytes(32)).digest('hex'),
         invitedBy: actor.id,
-        expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + INVITATION_TTL_MS),
       });
       await tx
         .insert(invitationRoles)
@@ -129,9 +145,9 @@ export async function POST(request: Request) {
         payload: { email, roles: uniqueRoles },
       });
     });
-    await sendPasswordSetup(email);
+    const emailStatus = await sendPasswordSetup(email);
     return Response.json(
-      { id: invitationId, email, expiresInHours: 72 },
+      { id: invitationId, email, expiresInHours: 72, emailStatus },
       { status: 201 },
     );
   } catch (error) {
@@ -149,11 +165,16 @@ export async function GET(request: Request) {
       .select({
         id: invitations.id,
         email: invitations.email,
+        emailStatus: invitations.emailStatus,
         expiresAt: invitations.expiresAt,
+        lastAttemptAt: invitations.lastAttemptAt,
+        sentAt: invitations.sentAt,
         createdAt: invitations.createdAt,
       })
       .from(invitations)
-      .where(isNull(invitations.acceptedAt))
+      .where(
+        and(isNull(invitations.acceptedAt), isNull(invitations.cancelledAt)),
+      )
       .orderBy(desc(invitations.createdAt));
     return Response.json({ data: rows });
   } catch (error) {

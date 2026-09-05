@@ -33,6 +33,12 @@ export const recordStatus = pgEnum('record_status', [
   'INACTIVE',
   'PENDING',
 ]);
+export const invitationEmailStatus = pgEnum('invitation_email_status', [
+  'PENDING',
+  'SENT',
+  'FAILED',
+  'ACCEPTED',
+]);
 export const bomStatus = pgEnum('bom_status', ['DRAFT', 'ACTIVE', 'EXPIRED']);
 export const documentStatus = pgEnum('document_status', [
   'DRAFT',
@@ -211,6 +217,14 @@ export const invitations = pgTable(
       .references(() => user.id),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     acceptedAt: timestamp('accepted_at', { withTimezone: true }),
+    cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+    emailStatus: invitationEmailStatus('email_status')
+      .notNull()
+      .default('PENDING'),
+    lastAttemptAt: timestamp('last_attempt_at', { withTimezone: true }),
+    sentAt: timestamp('sent_at', { withTimezone: true }),
+    providerMessageId: text('provider_message_id'),
+    lastError: text('last_error'),
     createdAt: createdAt(),
   },
   (t) => [

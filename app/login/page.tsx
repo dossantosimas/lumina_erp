@@ -1,15 +1,20 @@
-import { Sparkles } from 'lucide-react';
+import Image from 'next/image';
 import { LoginForm } from './login-form';
 
 export default function LoginPage() {
   return (
     <main className="grid min-h-screen place-items-center bg-[var(--canvas)] p-5">
       <section className="w-full max-w-md rounded-3xl border bg-background p-8 shadow-xl">
-        <span className="grid size-12 place-items-center rounded-full bg-primary text-primary-foreground">
-          <Sparkles />
-        </span>
-        <p className="mt-7 text-xs font-bold uppercase tracking-[0.2em] text-[#9a775a]">
-          LÚMINA Candle Studio
+        <Image
+          src="/brand/lumina-lockup.png"
+          alt="LÚMINA Candle Studio"
+          width={300}
+          height={200}
+          className="mx-auto h-36 w-auto object-contain"
+          priority
+        />
+        <p className="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-brand">
+          Operación centralizada
         </p>
         <h1 className="mt-2 font-heading text-3xl font-semibold">
           Acceso al ERP
